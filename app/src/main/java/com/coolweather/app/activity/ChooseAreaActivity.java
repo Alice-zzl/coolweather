@@ -2,7 +2,10 @@ package com.coolweather.app.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -68,13 +71,19 @@ public class ChooseAreaActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("city_selected",false)){
+            Intent intent = new Intent(this,WeatherAcitivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
         titleText = (TextView) findViewById(R.id.title_text);
         listView = (ListView) findViewById(R.id.list_view);
         adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,dataList);
         listView.setAdapter(adapter);
-        Log.d("Activity","12    3");
         coolWeatherDB = CoolWeatherDB.getInstance(this);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -85,6 +94,12 @@ public class ChooseAreaActivity extends Activity {
                 }else if (currentLevel == LEVEL_CITY){
                     selectedCity = cityList.get(index);
                     queryCounties();
+                } else if (currentLevel == LEVEL_COUNTY) {
+                    String countyCode = countyList.get(index).getCountyCode();
+                    Intent intent = new Intent(ChooseAreaActivity.this,WeatherAcitivity.class);
+                    intent.putExtra("county_code",countyCode);
+                    startActivity(intent);
+                    finish();
                 }
             }
         });
