@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,12 +22,20 @@ import com.coolweather.app.util.Utility;
 /**
  * Created by zeli-zheng on 2016/12/06.
  */
-public class WeatherAcitivity extends Activity {
+public class WeatherAcitivity extends Activity implements View.OnClickListener {
     private LinearLayout weatherInfoLayout;
     /*
     * 用于显示城市名
     */
     private TextView cityNameText;
+    /*
+    * 切换城市按钮
+    */
+    private Button switchCity;
+    /*
+    * 更新天气按钮
+    */
+    private Button refreshWeather;
     /*
     * 用于显示发布时间
     */
@@ -56,6 +65,8 @@ public class WeatherAcitivity extends Activity {
         //初始化各控件
         weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
         cityNameText = (TextView) findViewById(R.id.city_name);
+        switchCity = (Button) findViewById(R.id.switch_city);
+        refreshWeather = (Button) findViewById(R.id.refresh_weather);
         publishText = (TextView) findViewById(R.id.publish_text);
         weatherDespText = (TextView) findViewById(R.id.weather_desp);
         temp1Text = (TextView) findViewById(R.id.temp1);
@@ -72,6 +83,8 @@ public class WeatherAcitivity extends Activity {
             //没有县级代号时就直接显示本地天气
             showWeather();
         }
+        switchCity.setOnClickListener(this);
+        refreshWeather.setOnClickListener(this);
     }
 
     /*
@@ -156,4 +169,25 @@ public class WeatherAcitivity extends Activity {
         finish();
     }
 
+    @Override
+    public void onClick(View v){
+        switch (v.getId()){
+            case R.id.switch_city:
+                Intent intent = new Intent(this,ChooseAreaActivity.class);
+                intent.putExtra("from_weather_activity",true);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.refresh_weather:
+                publishText.setText("同步中...");
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String weatherCode = prefs.getString("weather_code","");
+                if (!TextUtils.isEmpty(weatherCode)){
+                    queryWeatherInfo(weatherCode);
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }
